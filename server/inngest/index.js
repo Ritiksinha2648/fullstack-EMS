@@ -134,7 +134,7 @@ const attendanceRemainderCron = inngest.createFunction(
     {
         id: "attendance-remainder-cron", triggers: [
             {
-                cron: "0 0 6 * * *",
+                cron: "TZ=Asia/Kolkata 30 11 * * *",
             },
         ],
     },
