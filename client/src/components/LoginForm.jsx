@@ -27,6 +27,9 @@ const LoginForm = ({ role, title, subtitle }) => {
        try {
     const loggedInUser = await login(email, password, role);
 
+    console.log("Logged In User:", loggedInUser);
+
+
     if (loggedInUser.role === "ADMIN") {
         navigate("/dashboard");
     } else {
