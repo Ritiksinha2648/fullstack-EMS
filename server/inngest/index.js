@@ -64,7 +64,9 @@ const autoCheckOut = inngest.createFunction(
             attendance = await Attendance.findById(attendanceId)
 
             if (!attendance?.checkOut) {
-                attendance.checkOut = new Date(attendance.checkIn).getTime() + 4 * 60 * 60 * 1000;
+                attendance.checkOut = new Date(
+                    new Date(attendance.checkIn).getTime() + 4 * 60 * 60 * 1000
+                );
                 attendance.workingHours = 4;
                 attendance.dayType = "Half Day";
                 attendance.status = "LATE";
@@ -143,13 +145,40 @@ const attendanceRemainderCron = inngest.createFunction(
 
         // step 1 : Get today date range (IST)
 
-        const today = await step.run("get-today-date", () => {
-            const startUTC = new Date(new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
-                + "T00:00:00 +05:30");
-            const endUTC = new Date(startUTC.getTime() + 24 * 60 * 60 * 1000);
-            return { startUTC: startUTC.toISOString(), endUTC: endUTC.toISOString() }
+    const today = await step.run("get-today-date", () => {
+    const now = new Date();
 
+    const istNow = new Date(
+        now.toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
         })
+    );
+
+    const startUTC = new Date(
+        istNow.getFullYear(),
+        istNow.getMonth(),
+        istNow.getDate(),
+        0,
+        0,
+        0,
+        0
+    );
+
+    const endUTC = new Date(
+        istNow.getFullYear(),
+        istNow.getMonth(),
+        istNow.getDate() + 1,
+        0,
+        0,
+        0,
+        0
+    );
+
+    return {
+        startUTC: startUTC.toISOString(),
+        endUTC: endUTC.toISOString(),
+    };
+});
 
         //------------------ Step 2 : GEt all active, non - deleted employees ------------------------
 
@@ -196,33 +225,41 @@ const attendanceRemainderCron = inngest.createFunction(
         // Step 6 : send remainer emails
 
         if (absentEmployee.length > 0) {
-            await step.run("send-remainder-emails", async () => {
-                const emailPromises = absentEmployee.map((emp) => {
-                    // send email
 
+
+            await step.run("send-remainder-emails", async () => {
+                const emailPromises = absentEmployee.map((emp) =>
                     sendEmail({
                         to: emp.email,
-                        subject: `Attendance remaibder - Pllease Mark Your Attendance `,
+                        subject: "Attendance Reminder - Please Mark Your Attendance",
                         body: `<div style="max-width: 600px; font-family: Arial, sans-serif;">
-                            <h2>Hi ${emp.firstName}, 👋</h2>
-                            <p style="font-size: 16px;">We noticed you haven't marked your attendance yet today.</p>
-                            <p style="font-size: 16px;">The deadline was <strong>11:30 AM</strong> and your attendance is still missing.</p>
-                            <p style="font-size: 16px;">Please check in as soon as possible or contact your admin if you're facing any issues.</p>
-                            <br />
-                            <p style="font-size: 14px; color: #666;">Department: ${emp.department}</p>
-                            <br />
-                            <p style="font-size: 16px;">Best Regards,</p>
-                            <p style="font-size: 16px;"><strong>QuickEMS</strong></p>
-                        </div>`
-
+                <h2>Hi ${emp.firstName}, 👋</h2>
+                <p style="font-size: 16px;">
+                    We noticed you haven't marked your attendance yet today.
+                </p>
+                <p style="font-size: 16px;">
+                    The deadline was <strong>11:30 AM</strong> and your attendance is still missing.
+                </p>
+                <p style="font-size: 16px;">
+                    Please check in as soon as possible or contact your admin if you're facing any issues.
+                </p>
+                <br />
+                <p style="font-size: 14px; color: #666;">
+                    Department: ${emp.department}
+                </p>
+                <br />
+                <p style="font-size: 16px;">Best Regards,</p>
+                <p style="font-size: 16px;"><strong>QuickEMS</strong></p>
+            </div>`
                     })
+                );
 
-                })
+                await Promise.all(emailPromises);
+            });
 
-            })
         }
         return {
-            totaActive: activeEmployees.length, onLeave: onLeaveIds.length,
+            totalActive: activeEmployees.length, onLeave: onLeaveIds.length,
             checkedIn: checkedInIds.length, absent: absentEmployee.length
         }
     }

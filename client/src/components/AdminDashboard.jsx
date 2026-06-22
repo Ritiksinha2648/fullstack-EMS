@@ -3,16 +3,16 @@ import { Building2Icon, CalendarIcon, FileTextIcon, UserIcon } from "lucide-reac
 const AdminDashboard = ({ data }) => {
 
 
-const stats =[
+    const stats = [
 
         {
             icon: UserIcon,
-            value: data.totalEmployees,
+            value: data.totalEmployee || 0,
             label: "Total Employees",
             description: "Active Workforce",
         },
 
-        
+
         {
             icon: Building2Icon,
             value: data.totalDepartments,
@@ -29,7 +29,7 @@ const stats =[
         },
 
 
-        
+
         {
             icon: FileTextIcon,
             value: data.pendingLeaves,
@@ -37,13 +37,13 @@ const stats =[
             description: "Awaiting approval",
         },
 
-]
+    ]
 
 
 
-    
-  return (
-           <div className="animate-fade-in">
+
+    return (
+        <div className="animate-fade-in">
             <div className="page-header">
                 <h1 className="page-title">Dashboard</h1>
                 <p className="page-subtitle">
@@ -52,7 +52,7 @@ const stats =[
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 mb-8">
-                
+
                 {stats.map((s) => (
                     <div key={s.label} className="card card-hover p-5 sm:p-6 relative overflow-hidden
                  group flex items-center justify-between">
@@ -72,10 +72,10 @@ const stats =[
 
             </div>
 
-   
+
 
         </div>
-  )
+    )
 }
 
 export default AdminDashboard
