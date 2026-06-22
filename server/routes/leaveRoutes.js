@@ -11,7 +11,7 @@ const leaveRouter = Router();
 
 leaveRouter.post("/", protect,createLeave)
 leaveRouter.get("/", protect,getLeave)
-leaveRouter.patch("/", protect,protectAdmin, updateLeaveStatus)
+leaveRouter.patch("/:id", protect,protectAdmin, updateLeaveStatus)
 
 
 

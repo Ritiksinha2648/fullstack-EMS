@@ -36,7 +36,7 @@ const LoginForm = ({ role, title, subtitle }) => {
         navigate("/employee");
     }
  }catch (error) {
-            toast.error(error.response?.data?.error || error.message || "Login Failed!!")
+            toast.error(error.response?.data?.error || error?.message || "Login Failed!!")
         }finally{
             setLoading(false)
         }
